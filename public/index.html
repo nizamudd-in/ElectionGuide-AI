@@ -1,407 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VoteSaathi-AI | Election Assistant</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #f5a623;
-            --primary-dark: #e09612;
-            --bg-color: #0d1117;
-            --panel-bg: rgba(22, 27, 34, 0.7);
-            --text-main: #ffffff;
-            --text-muted: #8b949e;
-            --border: rgba(255, 255, 255, 0.1);
-            --bot-bubble: rgba(48, 54, 61, 0.8);
-            --user-bubble: rgba(245, 166, 35, 0.8);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            background-image: radial-gradient(circle at 50% 0%, #1a222c 0%, #0d1117 70%);
-            color: var(--text-main);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-        }
-
-        .chat-container {
-            width: 100%;
-            max-width: 500px;
-            height: 90vh;
-            background: var(--panel-bg);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-            display: flex;
-            flex-direction: column;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            overflow: hidden;
-            position: relative;
-        }
-
-        .chat-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(22, 27, 34, 0.9);
-        }
-
-        .header-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            background-color: #3fb950;
-            border-radius: 50%;
-            box-shadow: 0 0 10px #3fb950;
-        }
-
-        .chat-header h1 {
-            font-size: 1.2rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-
-        .chat-messages {
-            flex-grow: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            scroll-behavior: smooth;
-        }
-
-        .chat-messages::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .chat-messages::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-        }
-
-        .message {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 16px;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            animation: fadeIn 0.3s ease-out forwards;
-            opacity: 0;
-            transform: translateY(10px);
-        }
-
-        .message.bot {
-            align-self: flex-start;
-            background: var(--bot-bubble);
-            border-bottom-left-radius: 4px;
-            white-space: pre-wrap;
-        }
-
-        .message.user {
-            align-self: flex-end;
-            background: var(--user-bubble);
-            color: #fff;
-            border-bottom-right-radius: 4px;
-        }
-
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .chat-input-area {
-            padding: 20px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            gap: 10px;
-            background: rgba(22, 27, 34, 0.9);
-        }
-
-        .toggle-container {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 40px;
-            height: 20px;
-        }
-
-        .switch input { 
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #30363d;
-            transition: .4s;
-            border-radius: 34px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 14px;
-            width: 14px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: #a371f7;
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(20px);
-        }
-        
-        .ai-mode-active .status-dot {
-            background-color: #a371f7;
-            box-shadow: 0 0 10px #a371f7;
-        }
-        
-        .ai-mode-active .header-title h1 {
-            color: #a371f7;
-            text-shadow: 0 0 10px rgba(163, 113, 247, 0.3);
-        }
-
-        input[type="text"] {
-            flex-grow: 1;
-            padding: 12px 16px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            background: rgba(0, 0, 0, 0.3);
-            color: var(--text-main);
-            font-size: 0.95rem;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-
-        input[type="text"]:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 10px rgba(245, 166, 35, 0.2);
-        }
-
-        input[type="text"]::placeholder {
-            color: var(--text-muted);
-        }
-
-        button {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 20px;
-            background: var(--primary);
-            color: #fff;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: background 0.3s ease, transform 0.1s ease;
-            box-shadow: 0 4px 15px rgba(245, 166, 35, 0.3);
-        }
-
-        button:hover {
-            background: var(--primary-dark);
-        }
-
-        button:active {
-            transform: scale(0.95);
-        }
-        
-        .loading {
-            align-self: flex-start;
-            display: none;
-            gap: 5px;
-            padding: 12px 16px;
-            background: var(--bot-bubble);
-            border-radius: 16px;
-            border-bottom-left-radius: 4px;
-        }
-        
-        .loading.active {
-            display: flex;
-        }
-
-        .dot {
-            width: 8px;
-            height: 8px;
-            background: var(--text-muted);
-            border-radius: 50%;
-            animation: bounce 1.4s infinite ease-in-out both;
-        }
-
-        .dot:nth-child(1) { animation-delay: -0.32s; }
-        .dot:nth-child(2) { animation-delay: -0.16s; }
-
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VoteSaathi-AI | AI-Powered Election Assistant for India</title>
+  <meta name="description" content="VoteSaathi-AI — futuristic AI election assistant for Indian citizens. Check registration, find polling stations, view ballots.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <div class="chat-container" id="chat-wrapper">
-        <div class="chat-header">
-            <div class="header-title">
-                <div class="status-dot"></div>
-                <h1>VoteSaathi-AI</h1>
+<!-- Background -->
+<div class="bg-layer">
+  <div class="bg-stars"></div>
+  <div class="bg-india"></div>
+  <div class="bg-gradient"></div>
+</div>
+
+<!-- Mobile Toggle -->
+<button class="mob-toggle" id="mob-toggle" aria-label="Menu">☰</button>
+<div class="sb-overlay" id="sb-overlay"></div>
+
+<div class="app">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-header">
+      <div class="sb-logo">
+        <span class="sb-logo-icon"><i class="fa-solid fa-landmark"></i></span>
+        <h2>VoteSaathi-AI</h2>
+      </div>
+      <div class="sb-avatar">
+        <div style="width:100%;height:100%;background:linear-gradient(135deg,#3a3a5c,#2a2a48);display:flex;align-items:center;justify-content:center;font-size:14px;color:#a678f0"><i class="fa-solid fa-user"></i></div>
+        <div class="online"></div>
+      </div>
+    </div>
+
+    <ul class="sb-nav">
+      <li class="active"><a href="#" id="nav-home"><span class="icon neon-icon neon-cyan"><i class="fa-solid fa-house"></i></span>Home</a></li>
+      <li><a href="#" id="nav-ballot"><span class="icon neon-icon neon-purple"><i class="fa-solid fa-square-check"></i></span>View Sample Ballot</a></li>
+      <li><a href="#" id="nav-reg"><span class="icon neon-icon neon-pink"><i class="fa-solid fa-id-card"></i></span>Check Registration</a></li>
+      <li><a href="#" id="nav-poll"><span class="icon neon-icon neon-gold"><i class="fa-solid fa-location-dot"></i></span>Find Polling Place</a></li>
+      <li><a href="#" id="nav-dates"><span class="icon neon-icon neon-cyan"><i class="fa-solid fa-calendar-days"></i></span>Important Dates</a></li>
+    </ul>
+
+    <!-- AI Toggle -->
+    <div class="ai-toggle-wrap">
+      <label class="tgl">
+        <input type="checkbox" id="ai-toggle">
+        <div class="tgl-track"></div>
+        <div class="tgl-thumb"></div>
+      </label>
+      <span id="ai-label">AI Mode</span>
+    </div>
+
+    <!-- Know Your Rights -->
+    <div class="sb-rights">
+      <h4><i class="fa-solid fa-shield-halved neon-inline neon-gold"></i> Know Your Rights</h4>
+      <p>Every citizen has the right to free and fair elections.</p>
+      <div class="glow-line"></div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main">
+
+    <!-- Top Bar -->
+    <div class="topbar">
+      <span class="topbar-title"><i class="fa-solid fa-robot neon-inline neon-purple" style="margin-right:8px"></i>VoteSaathi-AI Bot</span>
+    </div>
+
+    <!-- AI Robot Section -->
+    <div class="ai-section">
+        <div class="bg-glow"></div>
+
+    <div class="stage">
+        <div class="bot-container">
+            <div class="head">
+                <div class="screen">
+                    <div class="eye"></div>
+                    <div class="eye"></div>
+                </div>
+                
+                <div class="bubble">
+                    <span>Namaste <i class="fa-regular fa-hand neon-inline neon-gold"></i></span>
+                </div>
             </div>
-            <div class="toggle-container">
-                <span>AI Mode</span>
-                <label class="switch">
-                    <input type="checkbox" id="ai-toggle">
-                    <span class="slider"></span>
-                </label>
-            </div>
+            
+            <div class="base"></div>
         </div>
 
-        <div class="chat-messages" id="chat-messages">
-            <!-- Messages will appear here -->
-            <div class="loading" id="loading-indicator">
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-            </div>
-        </div>
-
-        <div class="chat-input-area">
-            <input type="text" id="user-input" placeholder="Type a number or message..." autocomplete="off">
-            <button id="send-btn">Send</button>
+        <div class="footer">
+            eci.gov.in • Indian Election Assistant
         </div>
     </div>
 
-    <script>
-        const chatMessages = document.getElementById('chat-messages');
-        const userInput = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
-        const loadingIndicator = document.getElementById('loading-indicator');
-        const aiToggle = document.getElementById('ai-toggle');
-        const chatWrapper = document.getElementById('chat-wrapper');
+    </div>
 
-        let currentState = 'menu';
-        let isAiMode = false;
+    <!-- Welcome -->
+    <section class="welcome">
+      <h1>Welcome back, Citizen.<br>Check registration or explore topics.</h1>
+    </section>
 
-        aiToggle.addEventListener('change', (e) => {
-            isAiMode = e.target.checked;
-            if (isAiMode) {
-                chatWrapper.classList.add('ai-mode-active');
-                appendMessage("AI Mode Activated ✨ You can now ask me any open questions about voting, required documents, or procedures.", 'bot');
-            } else {
-                chatWrapper.classList.remove('ai-mode-active');
-                appendMessage("Switched back to Menu Mode. Type 'menu' to see options.", 'bot');
-                currentState = 'menu';
-            }
-        });
+    <!-- Feature Cards -->
+    <section class="cards">
+      <div class="card ballot" id="card-ballot">
+        <div class="card-icon neon-card-icon neon-purple"><i class="fa-solid fa-check-to-slot"></i></div>
+        <h3>View My Ballot</h3>
+        <p>See the races and candidates in your precinct.</p>
+      </div>
+      <div class="card polling" id="card-polling">
+        <div class="card-icon neon-card-icon neon-pink"><i class="fa-solid fa-map-location-dot"></i></div>
+        <h3>Polling Station Locator</h3>
+        <p>Find directions to your specific polling place.</p>
+      </div>
+    </section>
 
-        function formatMessage(text) {
-            // Very simple markdown to HTML conversion for bold and lists
-            let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            formatted = formatted.replace(/\n\*/g, '<br>•');
-            formatted = formatted.replace(/\n-/g, '<br>•');
-            return formatted;
-        }
+    <!-- Orb -->
+    <div class="orb-wrap">
+      <button class="orb-side-btn left neon-btn" aria-label="Voice"><i class="fa-solid fa-microphone"></i></button>
+      <div class="orb"></div>
+      <button class="orb-side-btn right neon-btn" aria-label="Keyboard"><i class="fa-solid fa-keyboard"></i></button>
+    </div>
 
-        function appendMessage(text, sender) {
-            const msgDiv = document.createElement('div');
-            msgDiv.classList.add('message', sender);
-            if (sender === 'bot') {
-                msgDiv.innerHTML = formatMessage(text);
-            } else {
-                msgDiv.textContent = text;
-            }
-            chatMessages.insertBefore(msgDiv, loadingIndicator);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
+    <!-- Chat Input -->
+    <div class="chat-bar">
+      <input type="text" id="main-input" placeholder='Type your question here... e.g., "How do I update my address?"' autocomplete="off">
+      <button class="chat-send primary" id="main-send" aria-label="Send"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
 
-        async function sendMessage(messageText = '') {
-            if (!messageText && userInput.value.trim() === '') return;
-            
-            const text = messageText || userInput.value.trim();
-            if(!messageText) {
-                appendMessage(text, 'user');
-                userInput.value = '';
-            }
+  </main>
+</div>
 
-            loadingIndicator.classList.add('active');
-            chatMessages.scrollTop = chatMessages.scrollHeight;
 
-            try {
-                const endpoint = isAiMode ? '/ai' : '/chat';
-                const body = isAiMode ? { message: text } : { message: text, state: currentState };
 
-                const response = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
-                });
+<!-- ===== CHAT OVERLAY ===== -->
+<div class="chat-overlay" id="chat-overlay">
+  <div class="chat-panel">
+    <div class="cp-head">
+      <h3><i class="fa-solid fa-comments neon-inline neon-cyan" style="margin-right:8px"></i>VoteSaathi-AI Chat</h3>
+      <button class="cp-close" id="cp-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="cp-msgs" id="cp-msgs">
+      <div class="c-loading" id="c-loading">
+        <div class="d"></div><div class="d"></div><div class="d"></div>
+      </div>
+    </div>
+    <div class="cp-input">
+      <input type="text" id="cp-input" placeholder="Type a number or message…" autocomplete="off">
+      <button id="cp-send" aria-label="Send"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+  </div>
+</div>
 
-                const data = await response.json();
-                
-                loadingIndicator.classList.remove('active');
-                appendMessage(data.reply, 'bot');
-                if (!isAiMode && data.state) {
-                    currentState = data.state;
-                }
-            } catch (error) {
-                loadingIndicator.classList.remove('active');
-                appendMessage("Sorry, I'm having trouble connecting to the server.", 'bot');
-                console.error('Chat error:', error);
-            }
-        }
+<script src="app.js">
 
-        sendBtn.addEventListener('click', () => sendMessage());
-
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-
-        // Initialize chat
-        window.addEventListener('load', () => {
-            sendMessage('menu');
-        });
-    </script>
+</script>
 </body>
 </html>
